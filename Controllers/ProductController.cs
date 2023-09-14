@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Xml.Linq;
 using Veebipood.Data;
 using Veebipood.Models;
 
@@ -9,73 +10,21 @@ namespace Veebipood.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private static Product _product = new Product(1, "Koola", 1.5, true, 4);
 
-        public ProductController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
+        // GET: toode
         [HttpGet]
-        public List<Product> GetProducts()
+        public Product GetToode()
         {
-            var product = _context.Product.ToList();
-            return product;
+            return _product;
         }
 
-        [HttpPost]
-        public List<Product> PostProducts([FromBody] Product product)
+        // GET: toode/suurenda-hinda
+        [HttpGet("suurenda-hinda")]
+        public Product SuurendaHinda()
         {
-            _context.Product.Add(product);
-            _context.SaveChanges();
-            return _context.Product.ToList();
-        }
-
-        [HttpDelete("{id}")]
-        public List<Product> DeleteProducts(int id)
-        {
-            var person = _context.Product.Find(id);
-
-            if (person == null)
-            {
-                return _context.Product.ToList();
-            }
-
-            _context.Product.Remove(person);
-            _context.SaveChanges();
-            return _context.Product.ToList();
-        }
-
-        [HttpGet("{id}")]
-        public ActionResult<Product> GetProducts(int id)
-        {
-            var persons = _context.Product.Find(id);
-
-            if (persons == null)
-            {
-                return NotFound();
-            }
-
-            return persons;
-        }
-
-        [HttpPut("{id}")]
-        public ActionResult<List<Product>> PutProducts(int id, [FromBody] Product updatedPersons)
-        {
-            var persons = _context.Product.Find(id);
-
-            if (persons == null)
-            {
-                return NotFound();
-            }
-
-            persons.Name = updatedPersons.Name;
-            persons.Price = updatedPersons.Price;
-
-            _context.Product.Update(persons);
-            _context.SaveChanges();
-
-            return Ok(_context.Product);
+            _product.Price = _product.Price + 1;
+            return _product;
         }
     }
 }
