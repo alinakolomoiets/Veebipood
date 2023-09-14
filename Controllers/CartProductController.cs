@@ -5,7 +5,7 @@ using Veebipood.Models;
 
 namespace Veebipood.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class CartProductController : ControllerBase
     {
@@ -15,54 +15,67 @@ namespace Veebipood.Controllers
         {
             _context = context;
         }
-        [HttpPost]
-        public List<CartProduct> PostCartProduct([FromBody] CartProduct cartproduct)
-        {
-            _context.Product.Add(cartproduct.Prod);
-            _context.SaveChanges();
 
-            cartproduct.ProductId = cartproduct.Prod.Id;
-
-            _context.CartProduct.Add(cartproduct);
-            _context.SaveChanges();
-            return _context.CartProduct.Include(b => b.Prod).ToList();
-        }
         [HttpGet]
         public List<CartProduct> GetCartProduct()
         {
-            var cartproduct = _context.CartProduct.Include(b => b.Prod).ToList();
-            return cartproduct;
+            var product = _context.CartProduct.ToList();
+            return product;
         }
+
+        [HttpPost]
+        public List<CartProduct> PostProduct([FromBody] CartProduct product)
+        {
+            _context.CartProduct.Add(product);
+            _context.SaveChanges();
+            return _context.CartProduct.ToList();
+        }
+
+        [HttpDelete("{id}")]
+        public List<CartProduct> DeleteCartProducts(int id)
+        {
+            var person = _context.CartProduct.Find(id);
+
+            if (person == null)
+            {
+                return _context.CartProduct.ToList();
+            }
+
+            _context.CartProduct.Remove(person);
+            _context.SaveChanges();
+            return _context.CartProduct.ToList();
+        }
+
         [HttpGet("{id}")]
         public ActionResult<CartProduct> GetCartProduct(int id)
         {
-            var cartproduct = _context.CartProduct.Include(b => b.Prod).FirstOrDefault(b => b.Id == id);
+            var persons = _context.CartProduct.Find(id);
 
-            if (cartproduct == null)
+            if (persons == null)
             {
                 return NotFound();
             }
 
-            return cartproduct;
+            return persons;
         }
-        [HttpDelete("{id}")]
-        public List<CartProduct> DeleteCartProduct(int id)
+
+        [HttpPut("{id}")]
+        public ActionResult<List<CartProduct>> PutProduct(int id, [FromBody] CartProduct updatedPerson)
         {
-            var cartproduct = _context.CartProduct.Include(b => b.Prod).FirstOrDefault(b => b.Id == id);
+            var person = _context.CartProduct.Find(id);
 
-            if (cartproduct == null)
+            if (person == null)
             {
-                return _context.CartProduct.Include(b => b.Prod).ToList();
+                return NotFound();
             }
 
-            if (cartproduct.Prod != null)
-            {
-                _context.Product.Remove(cartproduct.Prod);
-            }
+            person.ProductId = updatedPerson.ProductId;
+            person.Quantity = updatedPerson.Quantity;
 
-            _context.CartProduct.Remove(cartproduct);
+            _context.CartProduct.Update(person);
             _context.SaveChanges();
-            return _context.CartProduct.Include(b => b.Prod).ToList();
+
+            return Ok(_context.CartProduct);
         }
     }
 }

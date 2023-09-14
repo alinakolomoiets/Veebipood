@@ -15,54 +15,67 @@ namespace Veebipood.Controllers
         {
             _context = context;
         }
-        [HttpPost]
-        public List<Product> PostProduct([FromBody] Product product)
-        {
-            _context.Category.Add(product.Cat);
-            _context.SaveChanges();
 
-            product.CategoryId = product.Cat.Id;
-
-            _context.Product.Add(product);
-            _context.SaveChanges();
-            return _context.Product.Include(a => a.Cat).ToList();
-        }
         [HttpGet]
-        public List<Product> GetProduct()
+        public List<Product> GetProducts()
         {
-            var product = _context.Product.Include(a => a.Cat).ToList();
+            var product = _context.Product.ToList();
             return product;
         }
-        [HttpGet("{id}")]
-        public ActionResult<Product> GetProduct(int id)
-        {
-            var product = _context.Product.Include(a => a.Cat).FirstOrDefault(a => a.Id == id);
 
-            if (product == null)
+        [HttpPost]
+        public List<Product> PostProducts([FromBody] Product product)
+        {
+            _context.Product.Add(product);
+            _context.SaveChanges();
+            return _context.Product.ToList();
+        }
+
+        [HttpDelete("{id}")]
+        public List<Product> DeleteProducts(int id)
+        {
+            var person = _context.Product.Find(id);
+
+            if (person == null)
+            {
+                return _context.Product.ToList();
+            }
+
+            _context.Product.Remove(person);
+            _context.SaveChanges();
+            return _context.Product.ToList();
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<Product> GetProducts(int id)
+        {
+            var persons = _context.Product.Find(id);
+
+            if (persons == null)
             {
                 return NotFound();
             }
 
-            return product;
+            return persons;
         }
-        [HttpDelete("{id}")]
-        public List<Product> DeleteProduct(int id)
+
+        [HttpPut("{id}")]
+        public ActionResult<List<Product>> PutProducts(int id, [FromBody] Product updatedPersons)
         {
-            var product = _context.Product.Include(a => a.Cat).FirstOrDefault(a => a.Id == id);
+            var persons = _context.Product.Find(id);
 
-            if (product == null)
+            if (persons == null)
             {
-                return _context.Product.Include(a => a.Cat).ToList();
+                return NotFound();
             }
 
-            if (product.Cat != null)
-            {
-                _context.Category.Remove(product.Cat);
-            }
+            persons.Name = updatedPersons.Name;
+            persons.Price = updatedPersons.Price;
 
-            _context.Product.Remove(product);
+            _context.Product.Update(persons);
             _context.SaveChanges();
-            return _context.Product.Include(a => a.Cat).ToList();
+
+            return Ok(_context.Product);
         }
     }
 }

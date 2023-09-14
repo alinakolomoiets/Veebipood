@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Veebipood.Data;
 
@@ -11,9 +12,11 @@ using Veebipood.Data;
 namespace Veebipood.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230914054459_updateCartProduct")]
+    partial class updateCartProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -160,6 +163,8 @@ namespace Veebipood.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.ToTable("Product");
                 });
 
@@ -179,6 +184,17 @@ namespace Veebipood.Migrations
                         .IsRequired();
 
                     b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("Veebipood.Models.Product", b =>
+                {
+                    b.HasOne("Veebipood.Models.Category", "Cat")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cat");
                 });
 
             modelBuilder.Entity("Veebipood.Models.Order", b =>
