@@ -17,31 +17,33 @@ namespace Veebipood.Controllers
         }
 
         [HttpGet]
-        public List<CartProduct> GetCartProduct()
+        public List<CartProduct> GetCartProducts()
         {
-            var product = _context.CartProduct.ToList();
-            return product;
+            var CartProducts = _context.CartProduct.ToList();
+            return CartProducts;
         }
 
         [HttpPost]
-        public List<CartProduct> PostProduct([FromBody] CartProduct product)
+        public ActionResult<List<CartProduct>> PostCartProduct([FromBody] CartProduct CartProduct)
         {
-            _context.CartProduct.Add(product);
+            _context.CartProduct.Add(CartProduct);
             _context.SaveChanges();
-            return _context.CartProduct.ToList();
+
+
+            return Ok(_context.CartProduct);
         }
 
         [HttpDelete("{id}")]
-        public List<CartProduct> DeleteCartProducts(int id)
+        public List<CartProduct> DeleteCartProduct(int id)
         {
-            var person = _context.CartProduct.Find(id);
+            var CartProduct = _context.CartProduct.Find(id);
 
-            if (person == null)
+            if (CartProduct == null)
             {
                 return _context.CartProduct.ToList();
             }
 
-            _context.CartProduct.Remove(person);
+            _context.CartProduct.Remove(CartProduct);
             _context.SaveChanges();
             return _context.CartProduct.ToList();
         }
@@ -49,33 +51,58 @@ namespace Veebipood.Controllers
         [HttpGet("{id}")]
         public ActionResult<CartProduct> GetCartProduct(int id)
         {
-            var persons = _context.CartProduct.Find(id);
+            var CartProduct = _context.CartProduct.Find(id);
 
-            if (persons == null)
+            if (CartProduct == null)
             {
                 return NotFound();
             }
 
-            return persons;
+            return CartProduct;
         }
 
         [HttpPut("{id}")]
-        public ActionResult<List<CartProduct>> PutProduct(int id, [FromBody] CartProduct updatedPerson)
+        public ActionResult<List<CartProduct>> PutCartProduct(int id, [FromBody] CartProduct updatedCartProduct)
         {
-            var person = _context.CartProduct.Find(id);
+            var CartProduct = _context.CartProduct.Find(id);
 
-            if (person == null)
+            if (CartProduct == null)
             {
                 return NotFound();
             }
 
-            person.ProductId = updatedPerson.ProductId;
-            person.Quantity = updatedPerson.Quantity;
+            CartProduct.Quantity = updatedCartProduct.Quantity;
 
-            _context.CartProduct.Update(person);
+            _context.CartProduct.Update(CartProduct);
             _context.SaveChanges();
 
             return Ok(_context.CartProduct);
+        }
+
+        [HttpGet("{orderId}")]
+        public ActionResult<List<CartProduct>> GetCartProductsForOrder(int orderId)
+        {
+            var CartProducts = _context.CartProduct.Where(c => c.OrderId == orderId).ToList();
+
+            if (CartProducts.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return CartProducts;
+        }
+
+        [HttpGet("{productId}")]
+        public ActionResult<List<CartProduct>> GetCartProductsForProduct(int productId)
+        {
+            var CartProducts = _context.CartProduct.Where(c => c.ProductId == productId).ToList();
+
+            if (CartProducts.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return CartProducts;
         }
     }
 }

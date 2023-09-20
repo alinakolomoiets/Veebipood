@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Xml.Linq;
-using Veebipood.Data;
 using Veebipood.Models;
 
 namespace Veebipood.Controllers
@@ -10,7 +8,7 @@ namespace Veebipood.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private static Product _product = new Product(1, "Koola", 1.5, true, 4);
+        private static Product _product = new Product(1, "Koola", 1.5, true,4);
 
         // GET: toode
         [HttpGet]
